@@ -1,5 +1,3 @@
 ---
 # vars file for gitlab-runner-on-docker
 GITLAB_RUNNER_REGISTRATION_TOKEN: ""
-GITLAB_RUNNER_TAGS_LINUX: "docker,dind,linux"
-GITLAB_RUNNER_TAGS_WINDOWS: "aspnet,azure-cli,dotnet,msbuild,msdeploy,shell,sonarqube-scanner,windows,xamarin"
