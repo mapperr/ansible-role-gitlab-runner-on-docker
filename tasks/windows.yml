@@ -1,0 +1,65 @@
+---
+- name: Ensure chocolatey packages are installed
+  win_chocolatey:
+    name:
+    - git
+    - azure-cli
+    - azcopy
+    - visualstudio2017buildtools
+    - visualstudio2017-workload-webbuildtools
+    - sqlserver-cmdlineutils
+    - sql2017-dacframework
+    - sqllocaldb
+    - nuget.commandline
+    state: present
+
+- name: Ensure that binaries are present on the global system path in the specified order
+  win_path:
+    elements:
+    - 'C:\Program Files\Microsoft SQL Server\140\DAC\bin'
+    - 'C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy'
+    - 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin'
+    - 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
+
+
+- name: Ensure gitlab-runner folder is present
+  win_file:
+    path: C:\gitlab-runner
+    state: directory
+
+- name: Ensure gitlab-runner is absent
+  win_service:
+    name: gitlab-runner
+    state: absent
+
+- name: Ensure gitlab-runner windows registry entry is absent
+  win_regedit:
+    path: HKLM:\SYSTEM\ControlSet001\Services\EventLog\Application\gitlab-runner
+    state: absent
+
+- name: Download latest gitlab-runner for windows
+  win_get_url:
+    url: https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-windows-amd64.exe
+    dest: C:\gitlab-runner\gitlab-runner.exe
+
+- name: Register gitlab-runner if not already registered
+  win_shell: C:\gitlab-runner\gitlab-runner.exe register --non-interactive --url "https://gitlab.com/" --registration-token "{{ GITLAB_RUNNER_REGISTRATION_TOKEN }}" --executor "shell" --description "{{ ansible_hostname }}" --tag-list "{{ GITLAB_RUNNER_TAGS_WINDOWS }}" --run-untagged --locked="false"
+  args:
+    chdir: C:\gitlab-runner
+    creates: C:\gitlab-runner\config.toml
+
+- name: Register gitlab-runner service on the host
+  win_shell: C:\gitlab-runner\gitlab-runner.exe install
+  args:
+    chdir: C:\gitlab-runner
+
+- name: Ensure gitlab-runner service is running
+  win_service:
+    name: gitlab-runner
+    state: started
+    start_mode: auto
+
+- name: Reboot host
+  win_reboot:
+  tags:
+    - reboot

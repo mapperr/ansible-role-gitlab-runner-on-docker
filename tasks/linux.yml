@@ -1,0 +1,53 @@
+---
+- name: Remove runner
+  docker_container:
+    name: gitlab-runner
+    state: absent
+
+- name: Cleanup runner config
+  file:
+    path: /gitlab-runner/config
+    state: absent
+
+- name: Configure runner
+  docker_container:
+    name: gitlab-runner
+    state: started
+    image: gitlab/gitlab-runner:alpine
+    volumes:
+      - /gitlab-runner/config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    cleanup: yes
+    detach: no
+    command:
+      - register
+      - --non-interactive
+      - --url "https://gitlab.com/"
+      - --registration-token "{{ GITLAB_RUNNER_REGISTRATION_TOKEN }}"
+      - --executor "docker"
+      - --docker-image docker:stable
+      - --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+      - --description "{{ ansible_hostname }}"
+      - --tag-list "{{ GITLAB_RUNNER_TAGS_LINUX }}"
+      - --run-untagged
+      - --locked="false"
+
+- name: Spin up runner
+  docker_container:
+    name: gitlab-runner
+    state: started
+    image: gitlab/gitlab-runner:alpine
+    restart_policy: always
+    volumes:
+      - /gitlab-runner/config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# https://gitlab.com/gitlab-org/gitlab-runner-docker-cleanup
+- name: Spin up the runner cleanup application
+  docker_container:
+    name: gitlab-runner-cleanup
+    state: started
+    image: quay.io/gitlab/gitlab-runner-docker-cleanup
+    restart_policy: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
