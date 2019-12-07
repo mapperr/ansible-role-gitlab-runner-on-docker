@@ -1,6 +1,6 @@
 ---
 - include: windows.yml
-  when: "'os_windows' in group_names"
+  when: "'windows' in group_names or 'os_windows' in group_names"
   tags:
     - gitlab_runner
 
