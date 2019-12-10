@@ -42,6 +42,8 @@
     url: https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-windows-amd64.exe
     dest: C:\gitlab-runner\gitlab-runner.exe
 
+# this will fail
+# you can do it manually in powershell
 - name: Register gitlab-runner if not already registered
   win_shell: C:\gitlab-runner\gitlab-runner.exe register --non-interactive --url "https://gitlab.com/" --registration-token "{{ GITLAB_RUNNER_REGISTRATION_TOKEN }}" --executor "shell" --description "{{ ansible_hostname }}" --tag-list "{{ GITLAB_RUNNER_TAGS_WINDOWS }}" --run-untagged --locked="false"
   args:
@@ -59,7 +61,7 @@
     state: started
     start_mode: auto
 
-- name: Reboot host
-  win_reboot:
-  tags:
-    - reboot
+# - name: Reboot host
+#   win_reboot:
+#   tags:
+#     - reboot

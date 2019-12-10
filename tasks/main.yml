@@ -5,7 +5,7 @@
     - gitlab_runner
 
 - include: linux.yml
-  when: "'linux' in group_names"
+  when: "'linux' in group_names or 'os_linux' in group_names"
   become: yes
   tags:
     - gitlab_runner
