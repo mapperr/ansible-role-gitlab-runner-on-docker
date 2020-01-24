@@ -1,11 +1,11 @@
 ---
 - include: windows.yml
-  when: "'windows' in group_names or 'os_windows' in group_names"
+  when: "'windows' in group_names or 'os_windows' in group_names or 'gcp_os_windows' in group_names"
   tags:
     - gitlab_runner
 
 - include: linux.yml
-  when: "'linux' in group_names or 'os_linux' in group_names"
+  when: "'linux' in group_names or 'os_linux' in group_names or 'gcp_os_linux' in group_names"
   become: yes
   tags:
     - gitlab_runner
