@@ -19,18 +19,18 @@
       - /var/run/docker.sock:/var/run/docker.sock
     cleanup: yes
     detach: no
-    command:
-      - register
-      - --non-interactive
-      - --url "https://gitlab.com/"
-      - --registration-token "{{ GITLAB_RUNNER_REGISTRATION_TOKEN }}"
-      - --executor "docker"
-      - --docker-image docker:stable
-      - --docker-volumes /var/run/docker.sock:/var/run/docker.sock
-      - --description "{{ ansible_hostname }}"
-      - --tag-list "{{ GITLAB_RUNNER_TAGS_LINUX }}"
-      - --run-untagged
-      - --locked="false"
+    command: |
+      register
+      --non-interactive
+      --url "https://gitlab.com/"
+      --registration-token "{{ GITLAB_RUNNER_REGISTRATION_TOKEN }}"
+      --executor "docker"
+      --docker-image docker:stable
+      --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+      --description "{{ ansible_hostname }}"
+      --tag-list "{{ GITLAB_RUNNER_TAGS_LINUX }}"
+      --run-untagged
+      --locked="false"
 
 - name: Spin up runner
   docker_container:
